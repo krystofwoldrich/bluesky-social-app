@@ -54,6 +54,7 @@ import {s} from '#/lib/styles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {augmentSearchQuery} from '#/lib/strings/helpers'
 import {NavigationProp} from '#/lib/routes/types'
+import * as Sentry from '@sentry/react-native'
 
 function Loader() {
   const pal = usePalette('default')
@@ -160,21 +161,31 @@ function SearchScreenSuggestedFollows() {
   }, [currentAccount, setSuggestions, getSuggestedFollowsByActor])
 
   return suggestions.length ? (
-    <List
-      data={suggestions}
-      renderItem={({item}) => <ProfileCardWithFollowBtn profile={item} noBg />}
-      keyExtractor={item => item.did}
-      // @ts-ignore web only -prf
-      desktopFixedHeight
-      contentContainerStyle={{paddingBottom: 1200}}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-    />
+    <Sentry.TimeToFullDisplay record>
+      <List
+        data={suggestions}
+        renderItem={({item}) => (
+          <Sentry.Profiler name={`Profile ${item.did}`}>
+            <ProfileCardWithFollowBtn profile={item} noBg />
+          </Sentry.Profiler>
+        )}
+        keyExtractor={item => item.did}
+        // @ts-ignore web only -prf
+        desktopFixedHeight
+        contentContainerStyle={{paddingBottom: 1200}}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      />
+    </Sentry.TimeToFullDisplay>
   ) : (
-    <CenteredView sideBorders style={[pal.border, s.hContentRegion]}>
-      <ProfileCardFeedLoadingPlaceholder />
-      <ProfileCardFeedLoadingPlaceholder />
-    </CenteredView>
+    <Sentry.TimeToInitialDisplay record>
+      <Sentry.Profiler>
+        <CenteredView sideBorders style={[pal.border, s.hContentRegion]}>
+          <ProfileCardFeedLoadingPlaceholder />
+          <ProfileCardFeedLoadingPlaceholder />
+        </CenteredView>
+      </Sentry.Profiler>
+    </Sentry.TimeToInitialDisplay>
   )
 }
 

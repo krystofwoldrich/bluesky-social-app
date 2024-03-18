@@ -107,3 +107,5 @@ google-services.json
 # i18n
 src/locale/locales/_build/
 src/locale/locales/**/*.js
+
+.yalc/

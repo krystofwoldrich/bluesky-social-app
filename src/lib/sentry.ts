@@ -6,7 +6,7 @@
 import {Platform} from 'react-native'
 import app from 'react-native-version-number'
 import * as info from 'expo-updates'
-import {init} from 'sentry-expo'
+import * as Sentry from '@sentry/react-native'
 
 /**
  * Matches the build profile `channel` props in `eas.json`
@@ -36,12 +36,24 @@ const dist = `${Platform.OS}.${release}${
   app.buildVersion ? `.${app.buildVersion}` : ''
 }`
 
-init({
+export const routingInstrumentation = new Sentry.ReactNavigationInstrumentation(
+  {
+    enableTimeToInitialDisplay: true,
+  },
+)
+
+Sentry.init({
   autoSessionTracking: false,
-  dsn: 'https://05bc3789bf994b81bd7ce20c86ccd3ae@o4505071687041024.ingest.sentry.io/4505071690514432',
-  debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
-  enableInExpoDevelopment: false, // enable this to test in dev
+  dsn: 'https://852e8a6051ace8c1f033e2b57d2ec115@o1357066.ingest.us.sentry.io/4506921931243520',
+  debug: true, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   environment: buildChannel,
   dist,
   release,
+  enableTracing: true,
+  beforeSend(event) {
+    // Modify the event here
+    console.log('event', event.event_id)
+    return event
+  },
+  integrations: [new Sentry.ReactNativeTracing({routingInstrumentation})],
 })

@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "packages": {
+    "@sentry/react-native": {
+      "signature": "038a1698b93f2646ac710e6d015e28d6",
+      "file": true,
+      "replaced": "^5.19.3"
+    }
+  }
+}

@@ -79,6 +79,7 @@ import {msg} from '@lingui/macro'
 import {i18n, MessageDescriptor} from '@lingui/core'
 import HashtagScreen from '#/screens/Hashtag'
 import {logEvent, attachRouteToLogEvents} from './lib/statsig/statsig'
+import {routingInstrumentation} from './lib/sentry'
 
 const navigationRef = createNavigationContainerRef<AllNavigatorParams>()
 
@@ -546,6 +547,7 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
         attachRouteToLogEvents(getCurrentRouteName)
         logModuleInitTime()
         onReady()
+        routingInstrumentation.registerNavigationContainer(navigationRef)
       }}>
       {children}
     </NavigationContainer>

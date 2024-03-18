@@ -72,6 +72,7 @@ import {AccountDropdownBtn} from 'view/com/util/AccountDropdownBtn'
 import {SimpleViewHeader} from 'view/com/util/SimpleViewHeader'
 import {ExportCarDialog} from './ExportCarDialog'
 import {BirthDateSettingsDialog} from '#/components/dialogs/BirthDateSettings'
+import {Sentry} from '../../../logger/sentry'
 
 function SettingsAccountCard({account}: {account: SessionAccount}) {
   const pal = usePalette('default')
@@ -807,6 +808,16 @@ export function SettingsScreen({}: Props) {
           accessibilityLabel={_(msg`Opens the system log page`)}>
           <Text type="lg" style={pal.text}>
             <Trans>System log</Trans>
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[pal.view, styles.linkCardNoIcon]}
+          accessibilityRole="button"
+          onPress={() => {
+            Sentry.captureException(new Error('Test error'))
+          }}>
+          <Text type="lg" style={pal.text}>
+            <Trans>Capture Sentry Error</Trans>
           </Text>
         </TouchableOpacity>
         {__DEV__ ? (

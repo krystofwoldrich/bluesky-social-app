@@ -3,7 +3,7 @@ import {AppState, AppStateStatus} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {createClient, SegmentClient} from '@segment/analytics-react-native'
 import {sha256} from 'js-sha256'
-import {Native} from 'sentry-expo'
+import * as Native from '@sentry/react-native'
 
 import {useSession, SessionAccount} from '#/state/session'
 import {ScreenPropertiesMap, TrackPropertiesMap} from './types'

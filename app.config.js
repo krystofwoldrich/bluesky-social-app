@@ -128,7 +128,7 @@ module.exports = function (config) {
       },
       plugins: [
         'expo-localization',
-        Boolean(process.env.SENTRY_AUTH_TOKEN) && 'sentry-expo',
+        Boolean(process.env.SENTRY_AUTH_TOKEN) && '@sentry/react-native/expo',
         [
           'expo-build-properties',
           {
