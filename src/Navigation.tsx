@@ -86,6 +86,8 @@ import {SupportScreen} from './view/screens/Support'
 import {TermsOfServiceScreen} from './view/screens/TermsOfService'
 import {BottomBar} from './view/shell/bottom-bar/BottomBar'
 import {createNativeStackNavigatorWithAuth} from './view/shell/createNativeStackNavigatorWithAuth'
+import { Sentry } from './logger/sentry'
+import { routingInstrumentation } from './lib/sentry'
 
 const navigationRef = createNavigationContainerRef<AllNavigatorParams>()
 
@@ -618,6 +620,7 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
         logModuleInitTime()
         onReady()
         logEvent('router:navigate', {})
+        routingInstrumentation.registerNavigationContainer(navigationRef);
       }}>
       {children}
     </NavigationContainer>

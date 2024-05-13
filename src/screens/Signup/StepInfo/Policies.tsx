@@ -8,6 +8,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfo} from '#/components/icons/CircleInfo'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
+import { Sentry } from '../../../logger/sentry'
 
 export const Policies = ({
   serviceDescription,
@@ -54,6 +55,11 @@ export const Policies = ({
     els.push(
       <InlineLinkText key="pp" to={pp}>
         {_(msg`Privacy Policy`)}
+      </InlineLinkText>,
+    )
+    els.push(
+      <InlineLinkText key="_se" to={pp} onPress={() => {Sentry.captureException(new Error('Error from the sky!'))}}>
+        {_(msg`captureError`)}
       </InlineLinkText>,
     )
   }

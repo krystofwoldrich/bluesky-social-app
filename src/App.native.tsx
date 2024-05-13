@@ -51,6 +51,7 @@ import {Provider as PortalProvider} from '#/components/Portal'
 import {Splash} from '#/Splash'
 import I18nProvider from './locale/i18nProvider'
 import {listenSessionDropped} from './state/events'
+import { Sentry } from './logger/sentry'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -173,4 +174,4 @@ function App() {
   )
 }
 
-export default App
+export default Sentry.wrap(App);

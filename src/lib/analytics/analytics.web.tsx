@@ -1,7 +1,7 @@
 import React from 'react'
 import {createClient} from '@segment/analytics-react'
 import {sha256} from 'js-sha256'
-import {Browser} from 'sentry-expo'
+import Browser from '@sentry/react-native'
 
 import {ScreenPropertiesMap, TrackPropertiesMap} from './types'
 import {useSession, SessionAccount} from '#/state/session'

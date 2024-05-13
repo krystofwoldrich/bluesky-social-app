@@ -66,6 +66,7 @@ import {BirthDateSettingsDialog} from '#/components/dialogs/BirthDateSettings'
 import {navigate, resetToTab} from '#/Navigation'
 import {Email2FAToggle} from './Email2FAToggle'
 import {ExportCarDialog} from './ExportCarDialog'
+import { Sentry } from '../../../logger/sentry'
 
 function SettingsAccountCard({
   account,
@@ -901,6 +902,13 @@ export function SettingsScreen({}: Props) {
             style={pal.link}
             href="https://bsky.social/about/support/privacy-policy"
             text={_(msg`Privacy Policy`)}
+          />
+          <TextLink
+            type="md"
+            style={pal.link}
+            href="https://bsky.social/about/support/privacy-policy"
+            onPress={() => { Sentry.captureException(new Error('Test Error from the sky!')) }}
+            text={_(msg`Capture Error`)}
           />
         </View>
         <View style={s.footerSpacer} />
