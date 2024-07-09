@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -27,6 +26,7 @@ import {
   useInAppBrowser,
   useSetInAppBrowser,
 } from '#/state/preferences/in-app-browser'
+import {useDeleteActorDeclaration} from '#/state/queries/messages/actor-declaration'
 import {useClearPreferencesMutation} from '#/state/queries/preferences'
 import {RQKEY as RQKEY_PROFILE} from '#/state/queries/profile'
 import {useProfileQuery} from '#/state/queries/profile'
@@ -40,7 +40,7 @@ import {
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useAnalytics} from 'lib/analytics/analytics'
-import * as AppInfo from 'lib/app-info'
+import {appVersion, BUNDLE_DATE, bundleInfo} from 'lib/app-info'
 import {STATUS_PAGE_URL} from 'lib/constants'
 import {useAccountSwitcher} from 'lib/hooks/useAccountSwitcher'
 import {useCustomPalette} from 'lib/hooks/useCustomPalette'
@@ -60,13 +60,15 @@ import {Text} from 'view/com/util/text/Text'
 import * as Toast from 'view/com/util/Toast'
 import {UserAvatar} from 'view/com/util/UserAvatar'
 import {ScrollView} from 'view/com/util/Views'
+import {DeactivateAccountDialog} from '#/screens/Settings/components/DeactivateAccountDialog'
 import {useTheme} from '#/alf'
 import {useDialogControl} from '#/components/Dialog'
 import {BirthDateSettingsDialog} from '#/components/dialogs/BirthDateSettings'
 import {navigate, resetToTab} from '#/Navigation'
 import {Email2FAToggle} from './Email2FAToggle'
 import {ExportCarDialog} from './ExportCarDialog'
-import { Sentry } from '../../../logger/sentry'
+import hairlineWidth = StyleSheet.hairlineWidth
+import {atoms as a} from '#/alf'
 
 function SettingsAccountCard({
   account,
@@ -103,10 +105,10 @@ function SettingsAccountCard({
         />
       </View>
       <View style={[s.flex1]}>
-        <Text type="md-bold" style={pal.text}>
+        <Text type="md-bold" style={[pal.text, a.self_start]} numberOfLines={1}>
           {profile?.displayName || account.handle}
         </Text>
-        <Text type="sm" style={pal.textLight}>
+        <Text type="sm" style={pal.textLight} numberOfLines={1}>
           {account.handle}
         </Text>
       </View>
@@ -251,13 +253,14 @@ export function SettingsScreen({}: Props) {
   }, [clearPreferences])
 
   const onPressResetOnboarding = React.useCallback(async () => {
+    navigation.navigate('Home')
     onboardingDispatch({type: 'start'})
     Toast.show(_(msg`Onboarding reset`))
-  }, [onboardingDispatch, _])
+  }, [navigation, onboardingDispatch, _])
 
   const onPressBuildInfo = React.useCallback(() => {
     setStringAsync(
-      `Build version: ${AppInfo.appVersion}; Platform: ${Platform.OS}`,
+      `Build version: ${appVersion}; Bundle info: ${bundleInfo}; Bundle date: ${BUNDLE_DATE}; Platform: ${Platform.OS}`,
     )
     Toast.show(_(msg`Copied build version to clipboard`))
   }, [_])
@@ -294,10 +297,6 @@ export function SettingsScreen({}: Props) {
     navigation.navigate('AccessibilitySettings')
   }, [navigation])
 
-  const onPressStatusPage = React.useCallback(() => {
-    Linking.openURL(STATUS_PAGE_URL)
-  }, [])
-
   const onPressBirthday = React.useCallback(() => {
     birthdayControl.open()
   }, [birthdayControl])
@@ -311,6 +310,13 @@ export function SettingsScreen({}: Props) {
     Toast.show(_(msg`Legacy storage cleared, you need to restart the app now.`))
   }, [_])
 
+  const deactivateAccountControl = useDialogControl()
+  const onPressDeactivateAccount = React.useCallback(() => {
+    deactivateAccountControl.open()
+  }, [deactivateAccountControl])
+
+  const {mutate: onPressDeleteChatDeclaration} = useDeleteActorDeclaration()
+
   return (
     <View style={s.hContentRegion} testID="settingsScreen">
       <ExportCarDialog control={exportCarControl} />
@@ -320,7 +326,7 @@ export function SettingsScreen({}: Props) {
         showBackButton={isMobile}
         style={[
           pal.border,
-          {borderBottomWidth: 1},
+          {borderBottomWidth: hairlineWidth},
           !isMobile && {borderLeftWidth: 1, borderRightWidth: 1},
         ]}>
         <View style={{flex: 1}}>
@@ -330,8 +336,7 @@ export function SettingsScreen({}: Props) {
         </View>
       </SimpleViewHeader>
       <ScrollView
-        style={s.hContentRegion}
-        contentContainerStyle={isMobile && pal.viewLight}
+        style={[s.hContentRegion, isMobile && pal.viewLight]}
         scrollIndicatorInsets={{right: 1}}
         // @ts-ignore web only -prf
         dataSet={{'stable-gutters': 1}}>
@@ -384,7 +389,7 @@ export function SettingsScreen({}: Props) {
             {!currentAccount.emailConfirmed && <EmailConfirmationNotice />}
 
             <View style={[s.flexRow, styles.heading]}>
-              <Text type="xl-bold" style={pal.text}>
+              <Text type="xl-bold" style={pal.text} numberOfLines={1}>
                 <Trans>Signed in as</Trans>
               </Text>
               <View style={s.flex1} />
@@ -619,6 +624,31 @@ export function SettingsScreen({}: Props) {
             <Trans>My Saved Feeds</Trans>
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          testID="linkToChatSettingsBtn"
+          style={[
+            styles.linkCard,
+            pal.view,
+            isSwitchingAccounts && styles.dimmed,
+          ]}
+          onPress={
+            isSwitchingAccounts
+              ? undefined
+              : () => navigation.navigate('MessagesSettings')
+          }
+          accessibilityRole="button"
+          accessibilityLabel={_(msg`Chat settings`)}
+          accessibilityHint={_(msg`Opens chat settings`)}>
+          <View style={[styles.iconContainer, pal.btn]}>
+            <FontAwesomeIcon
+              icon={['far', 'comment-dots']}
+              style={pal.text as FontAwesomeIconStyle}
+            />
+          </View>
+          <Text type="lg" style={pal.text}>
+            <Trans>Chat Settings</Trans>
+          </Text>
+        </TouchableOpacity>
 
         <View style={styles.spacer20} />
 
@@ -769,6 +799,29 @@ export function SettingsScreen({}: Props) {
             <Trans>Export My Data</Trans>
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[pal.view, styles.linkCard]}
+          onPress={onPressDeactivateAccount}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={_(msg`Deactivate account`)}
+          accessibilityHint={_(
+            msg`Opens modal for account deactivation confirmation`,
+          )}>
+          <View style={[styles.iconContainer, dangerBg]}>
+            <FontAwesomeIcon
+              icon={'users-slash'}
+              style={dangerText as FontAwesomeIconStyle}
+              size={18}
+            />
+          </View>
+          <Text type="lg" style={dangerText}>
+            <Trans>Deactivate my account</Trans>
+          </Text>
+        </TouchableOpacity>
+        <DeactivateAccountDialog control={deactivateAccountControl} />
+
         <TouchableOpacity
           style={[pal.view, styles.linkCard]}
           onPress={onPressDeleteAccount}
@@ -834,6 +887,16 @@ export function SettingsScreen({}: Props) {
             </TouchableOpacity>
             <TouchableOpacity
               style={[pal.view, styles.linkCardNoIcon]}
+              onPress={() => onPressDeleteChatDeclaration()}
+              accessibilityRole="button"
+              accessibilityLabel={_(msg`Delete chat declaration record`)}
+              accessibilityHint={_(msg`Deletes the chat declaration record`)}>
+              <Text type="lg" style={pal.text}>
+                <Trans>Delete chat declaration record</Trans>
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[pal.view, styles.linkCardNoIcon]}
               onPress={onPressResetOnboarding}
               accessibilityRole="button"
               accessibilityLabel={_(msg`Reset onboarding state`)}
@@ -871,17 +934,9 @@ export function SettingsScreen({}: Props) {
             accessibilityRole="button"
             onPress={onPressBuildInfo}>
             <Text type="sm" style={[styles.buildInfo, pal.textLight]}>
-              <Trans>Version {AppInfo.appVersion}</Trans>
-            </Text>
-          </TouchableOpacity>
-          <Text type="sm" style={[pal.textLight]}>
-            &nbsp; &middot; &nbsp;
-          </Text>
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={onPressStatusPage}>
-            <Text type="sm" style={[styles.buildInfo, pal.textLight]}>
-              <Trans>Status page</Trans>
+              <Trans>
+                Version {appVersion} {bundleInfo}
+              </Trans>
             </Text>
           </TouchableOpacity>
         </View>
@@ -906,9 +961,8 @@ export function SettingsScreen({}: Props) {
           <TextLink
             type="md"
             style={pal.link}
-            href="https://bsky.social/about/support/privacy-policy"
-            onPress={() => { Sentry.captureException(new Error('Test Error from the sky!')) }}
-            text={_(msg`Capture Error`)}
+            href={STATUS_PAGE_URL}
+            text={_(msg`Status Page`)}
           />
         </View>
         <View style={s.footerSpacer} />
@@ -1055,7 +1109,6 @@ const styles = StyleSheet.create({
   footer: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
     paddingLeft: 18,
   },
 })
