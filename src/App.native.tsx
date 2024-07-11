@@ -3,6 +3,7 @@ import 'lib/sentry' // must be near top
 import 'view/icons'
 
 import React, {useEffect, useState} from 'react'
+import {LogBox} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import {KeyboardProvider} from 'react-native-keyboard-controller'
 import {RootSiblingParent} from 'react-native-root-siblings'
@@ -61,6 +62,8 @@ import {BackgroundNotificationPreferencesProvider} from '../modules/expo-backgro
 import I18nProvider from './locale/i18nProvider'
 import {Sentry} from './logger/sentry'
 import {listenSessionDropped} from './state/events'
+
+LogBox.ignoreAllLogs()
 
 SplashScreen.preventAutoHideAsync()
 
