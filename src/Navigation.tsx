@@ -50,6 +50,7 @@ import {
 import {Wizard} from '#/screens/StarterPack/Wizard'
 import {init as initAnalytics} from './lib/analytics/analytics'
 import {useWebScrollRestoration} from './lib/hooks/useWebScrollRestoration'
+import {routingInstrumentation} from './lib/sentry'
 import {attachRouteToLogEvents, logEvent} from './lib/statsig/statsig'
 import {router} from './routes'
 import {MessagesConversationScreen} from './screens/Messages/Conversation'
@@ -640,6 +641,7 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
         logModuleInitTime()
         onReady()
         logEvent('router:navigate:sampled', {})
+        routingInstrumentation.registerNavigationContainer(navigationRef)
       }}>
       {children}
     </NavigationContainer>

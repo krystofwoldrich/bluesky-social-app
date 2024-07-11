@@ -5,7 +5,7 @@
 
 import {Platform} from 'react-native'
 import {nativeApplicationVersion, nativeBuildVersion} from 'expo-application'
-import {init} from 'sentry-expo'
+import {init, ReactNavigationInstrumentation, ReactNativeTracing} from '@sentry/react-native';
 
 import {BUILD_ENV, IS_DEV, IS_TESTFLIGHT} from 'lib/app-info'
 
@@ -29,12 +29,24 @@ const dist = `${Platform.OS}.${nativeBuildVersion}.${
   IS_TESTFLIGHT ? 'tf' : ''
 }${IS_DEV ? 'dev' : ''}`
 
+export const routingInstrumentation = new ReactNavigationInstrumentation({
+  enableTimeToInitialDisplay: true,
+});
+
 init({
-  autoSessionTracking: false,
-  dsn: 'https://05bc3789bf994b81bd7ce20c86ccd3ae@o4505071687041024.ingest.sentry.io/4505071690514432',
-  debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
-  enableInExpoDevelopment: false, // enable this to test in dev
+  dsn: 'https://1df17bd4e543fdb31351dee1768bb679@o447951.ingest.sentry.io/5428561',
+  debug: true, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   environment: BUILD_ENV ?? 'development',
   dist,
   release,
+  enableTracing: true,
+  integrations: [
+    new ReactNativeTracing({
+      routingInstrumentation,
+    }),
+  ],
+  _experiments: {
+    replaysSessionSampleRate: 1,
+    replaysOnErrorSampleRate: 1,
+  }
 })

@@ -57,6 +57,7 @@ import {
   UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
   UserCircle_Stroke2_Corner0_Rounded as UserCircle,
 } from '#/components/icons/UserCircle'
+import {Sentry} from '../../logger/sentry'
 import {TextLink} from '../com/util/Link'
 
 const iconWidth = 28
@@ -283,6 +284,15 @@ let DrawerContent = ({}: {}): React.ReactNode => {
               style={pal.link}
               href="https://bsky.social/about/support/privacy-policy"
               text={_(msg`Privacy Policy`)}
+            />
+            <TextLink
+              type="md"
+              style={pal.link}
+              href="https://bsky.social/about/support/privacy-policy"
+              onPress={() => {
+                Sentry.captureException(new Error('Test Error from the sky!'))
+              }}
+              text={_(msg`Capture Error`)}
             />
             {kawaii && (
               <Text type="md" style={pal.textLight}>

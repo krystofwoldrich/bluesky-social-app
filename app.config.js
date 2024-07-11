@@ -186,7 +186,13 @@ module.exports = function (config) {
       },
       plugins: [
         'expo-localization',
-        Boolean(process.env.SENTRY_AUTH_TOKEN) && 'sentry-expo',
+        Boolean(process.env.SENTRY_AUTH_TOKEN) && [
+          '@sentry/react-native/expo',
+          {
+            organization: 'sentry-sdks',
+            project: 'sentry-react-native',
+          },
+        ],
         [
           'expo-build-properties',
           {
@@ -257,22 +263,22 @@ module.exports = function (config) {
           projectId: '55bd077a-d905-4184-9c7f-94789ba0f302',
         },
       },
-      hooks: {
-        postPublish: [
-          /*
-           * @see https://docs.expo.dev/guides/using-sentry/#app-configuration
-           */
-          {
-            file: 'sentry-expo/upload-sourcemaps',
-            config: {
-              organization: 'blueskyweb',
-              project: 'react-native',
-              release: VERSION,
-              dist: SENTRY_DIST,
-            },
-          },
-        ],
-      },
+      // hooks: {
+      //   postPublish: [
+      //     /*
+      //      * @see https://docs.expo.dev/guides/using-sentry/#app-configuration
+      //      */
+      //     {
+      //       file: 'sentry-expo/upload-sourcemaps',
+      //       config: {
+      //         organization: 'blueskyweb',
+      //         project: 'react-native',
+      //         release: VERSION,
+      //         dist: SENTRY_DIST,
+      //       },
+      //     },
+      //   ],
+      // },
     },
   }
 }
